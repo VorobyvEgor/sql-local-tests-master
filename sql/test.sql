@@ -62,3 +62,51 @@ WHERE (flights.scheduled_departure
 		BETWEEN '2017-08-17 00:00:00' AND '2017-08-23 00:00:00')
 		AND flights.status = 'Cancelled';*/
 
+/*SQL.2 - 1
+
+Необходимо найти аэропорты вылета, из которых рейсы летают во Внуково (VKO), но не в Шереметьево (SVO).
+То есть был запланирован рейс из данного аэропорта во Внуково, но ни разу не был запланирован рейс в Шереметьево.*/
+
+/*select distinct f.departure_airport 
+from flights f
+left join flights b on b.departure_airport = f.departure_airport 
+and b.arrival_airport = 'SVO'
+where f.arrival_airport = 'VKO' and b.departure_airport is null*/
+
+/*SQL.2 - 2*/
+
+-- SELECT model, MAX(amount) as amount
+-- FROM aircrafts
+	-- inner join flights ON aircrafts.aircraft_code = flights.aircraft_code
+	-- inner join ticket_flights ON flights.flight_id = ticket_flights.flight_id
+-- WHERE fare_conditions = 'Business'
+-- GROUP BY model
+-- ORDER BY amount DESC;
+
+/*SQL.2 - 3
+
+Необходимо найти все рейсы за все месяцы из Шереметьево (код аэропорта SVO) в Ханты-Мансийск (код аэропорта HMA) 
+с одним промежуточным аэропортом (пересадки, включенные в один билет, считать за один перелет).
+Для каждой пары рейсов найдите минимальную сумму за билеты. Результирующую выборку отсортируйте по 
+возрастанию полной суммы.*/
+
+-- select f.flight_id as flight_id_1, e.flight_id as flight_id_2, 
+-- min(w.amount) + min(r.amount) as total_amount
+-- from flights f
+-- inner join flights e on f.arrival_airport=e.departure_airport and e.arrival_airport = 'HMA'
+-- inner join ticket_flights w on w.flight_id = f.flight_id
+-- inner join ticket_flights r on r.flight_id = e.flight_id
+-- where f.departure_airport = 'SVO' and  f.scheduled_arrival<e.scheduled_departure
+-- group by f.flight_id, e.flight_id 
+
+
+/*SQL.2 - 4
+
+Найти все пары аэропортов, между которыми было больше одного рейса, которые должны были вылететь 24 августа 2017 года.*/
+
+-- select  f.departure_airport, f.arrival_airport, count(f.flight_id) as amount
+-- from flights f
+-- where 
+-- cast(strftime('%d.%m.%Y', f.scheduled_arrival) as date) = cast('24.08.2017' as date)
+-- group by f.departure_airport, f.arrival_airport having count(f.flight_id)>1
+-- order by  amount, departure_airport desc, arrival_airport desc 
